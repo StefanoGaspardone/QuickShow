@@ -22,6 +22,10 @@ export const stripeWebhooks = async (request, response) => {
                 });
 
                 const session = sessionList[0];
+                if (!session || !session.metadata) {
+                    console.log('Stripe webhook: session or metadata not found', sessionList);
+                    return response.status(400).send('Session or metadata not found');
+                }
                 const { bookingId } = session.metadata;
 
                 await Booking.findByIdAndUpdate(bookingId, {
