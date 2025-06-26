@@ -6,8 +6,6 @@ export const stripeWebhooks = async (request, response) => {
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
     const sig = request.headers['stripe-signature'];
 
-    console.log()
-
     let event;
     try {
         event = stripeInstance.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
@@ -36,13 +34,18 @@ export const stripeWebhooks = async (request, response) => {
                     data: { bookingId }
                 });
 
+                console.log('paymentIntent:', paymentIntent);
+                console.log('sessionList:', sessionList);
+                console.log('session:', session);
+                console.log('bookingId:', bookingId);
+
                 break;
             }
             default: 
                 console.log('Unhandled event type: ' + event.type);
         }
 
-        response.json({ recevied: true });
+        response.json({ received: true });
     } catch(error) {
         console.log(`Webhook error: ${error.message}`);
         response.status(500).send(`Internal server error: ${error.message}`);
