@@ -4,6 +4,7 @@ import { SignIn } from '@clerk/clerk-react';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Loading from './components/Loading';
 
 import Home from './pages/Home';
 import Movies from './pages/Movies';
@@ -33,6 +34,7 @@ const App = () => {
 				<Route path = '/movies/:id' element = { <MovieDetails/> }/>
 				<Route path = '/movies/:id/:date' element = { <SeatLayout/> }/>
 				<Route path = '/my-bookings' element = { <MyBookings/> }/>
+				<Route path = '/loading/:nextUrl' element = { <Loading/> }/>
 				<Route path = '/favorites' element = { user ? <Favorites/> : <Navigate to = '/' replace = { true }/> }/>
 				<Route path = '/admin/*' element = { user ? <Layout/> : (
 					<div className = 'min-h-screen flex justify-center items-center'>

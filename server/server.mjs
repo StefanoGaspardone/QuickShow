@@ -10,6 +10,8 @@ import bookingRouter from './routes/bookingRoutes.mjs';
 import adminRouter from './routes/adminRoutes.mjs';
 import userRouter from './routes/userRoutes.mjs';
 
+import { stripeWebhooks } from './controllers/stripeWebhooks.mjs';
+
 import connectDB from './configs/db.mjs';
 import { inngest, functions } from './inngest/index.mjs';
 
@@ -17,6 +19,8 @@ const app = express();
 const port = 3000;
 
 await connectDB();
+
+app.use('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
 /* MIDDLEWARES */ 
 app.use(express.json());
