@@ -3,6 +3,7 @@ import { Inngest } from "inngest";
 import User from '../models/User.mjs';
 import Booking from '../models/Booking.mjs';
 import Show from '../models/Show.mjs';
+
 import sendEmail from "../configs/nodeMailer.mjs";
 
 export const inngest = new Inngest({ id: 'movie-ticket-booking' });
@@ -85,7 +86,7 @@ const sendBookingConfirmationEmail = inngest.createFunction(
                 model: 'Movie'
             }
         }).populate('user');
-
+        
         await sendEmail({
             to: booking.user.email,
             subject: `Payment confirmation: "${booking.show.movie.title}" booked!`,
@@ -93,13 +94,67 @@ const sendBookingConfirmationEmail = inngest.createFunction(
                         <h2>Hi ${booking.user.name},</h2>
                         <p>Your booking for <strong style = "color: #f84565">"${booking.show.movie.title}"</strong> is confirmed.</p>
                         <p>
-                            <strong>Date:</strong> ${new Date(booking.show.showDateTime).toLocalDateString('en-US', { timeZone: 'Asia/Kolkata' })}<br/>
-                            <strong>Time:</strong> ${new Date(booking.show.showDateTime).toLocalTimeString('en-US', { timeZone: 'Asia/Kolkata' })}
+                            <strong>Date:</strong> ${new Date(booking.show.showDateTime).toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata' })}<br/>
+                            <strong>Time:</strong> ${new Date(booking.show.showDateTime).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' })}
                         </p>
                         <p>Enjoy the show!</p>
                         <p>Thanks for booking with us!<br/>- QuickShow Team</p>
                     </div>`
         });
+    }
+);
+
+const sendShowReminder = inngest.createFunction(
+    { id: 'send-show-reminder' },
+    { cron: '0 */8 * * *' },
+    async ({ step }) => {
+        const now = new Date();
+        const in8h = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+        const windowStart = new Date(in8h.getTime() - 10 * 60 * 1000);
+
+        const reminderTasks = await step.run('prepare-reminder-tasks', async () => {
+            const shows = await Show.find({
+                showTime: {  $gte: windowStart, $lte: in8h}
+            }).populate('movie');
+
+            const tasks = [];
+            for(const show of shows) {
+                if(!show.movie || !show.occupiedSeats) continue;
+
+                const userIds = [...new set(Object.values(show.occupiedSeats))];
+                if(userIds.length === 0) continue;
+
+                const users = await User.find({ _id: { $in: userIds } }.select('name email'));
+
+                for(const user of users) {
+                    tasks.push({
+                        userEmail: user.email,
+                        userName: user.name,
+                        movieTitle: show.movie.title,
+                        showTime: show.showTime,
+                    });
+                }
+            }
+
+            return tasks; 
+        });
+
+        if(reminderTasks.length === 0) return { sent: 0, message: 'No reminders sent.' }
+
+        const results = await step.run('send-all-reminders', async () => {
+            return await Promise.allSettled(
+                reminderTasks.map(task => sendEmail({
+                    to: task.userEmail,
+                    subject: `Reminder: your movie "${task.movieTitle}" starts soon!`,
+                    body: `<h2>Reminder</h2>`
+                }))
+            )
+        });
+
+        const sent = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results.length - sent;
+
+        return { sent, failed, message: `Sent ${sent} reminders, ${failed} failed.` };
     }
 );
 

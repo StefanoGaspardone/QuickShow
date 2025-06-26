@@ -46,6 +46,7 @@ export const getAllBookings = async (req, res) => {
                                             path: 'show',
                                             populate: { path: 'movie' }
                                         })
+                                        .populate('user')
                                         .sort({ createdAt: -1 });
 
         res.json({ success: true, bookings });
