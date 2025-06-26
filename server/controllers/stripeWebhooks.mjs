@@ -2,15 +2,17 @@ import stripe from 'stripe';
 
 import Booking from '../models/Booking.mjs';
 
-export const stripeWebhooks = async (req, res) => {
+export const stripeWebhooks = async (request, response) => {
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-    const sig = req.headers['stripe-signature'];
+    const sig = request.headers['stripe-signature'];
+
+    console.log()
 
     let event;
     try {
-        event = stripeInstance.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        event = stripeInstance.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch(error) {
-        return res.status(400).send(`Webhook error: ${error.message}`);
+        return response.status(400).send(`Webhook error: ${error.message}`);
     }
 
     try {
@@ -40,9 +42,9 @@ export const stripeWebhooks = async (req, res) => {
                 console.log('Unhandled event type: ' + event.type);
         }
 
-        res.json({ recevied: true });
+        response.json({ recevied: true });
     } catch(error) {
         console.log(`Webhook error: ${error.message}`);
-        res.status(500).send('Internal server error');
+        response.status(500).send(`Internal server error: ${error.message}`);
     }
 }
