@@ -40,6 +40,7 @@ export const addShow = async (req, res) => {
 
             const movieApiData = movieDetailsResponse.data;
             const movieCreditsData = movieCreditsResponse.data;
+            console.log(movieCreditsData);
 
             const movieDetails = {
                 _id: movieId,
@@ -53,6 +54,7 @@ export const addShow = async (req, res) => {
                 tagline: movieApiData.tagline || '',
                 vote_average: movieApiData.vote_average,
                 runtime: movieApiData.runtime,
+                casts: movieCreditsData.cast,
             };
 
             movie = await Movie.create(movieDetails);

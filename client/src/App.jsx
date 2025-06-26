@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router';
+import { Routes, Route, useLocation, Navigate } from 'react-router';
 import { Toaster } from 'react-hot-toast';
 import { SignIn } from '@clerk/clerk-react';
 
@@ -33,7 +33,7 @@ const App = () => {
 				<Route path = '/movies/:id' element = { <MovieDetails/> }/>
 				<Route path = '/movies/:id/:date' element = { <SeatLayout/> }/>
 				<Route path = '/my-bookings' element = { <MyBookings/> }/>
-				<Route path = '/favorites' element = { <Favorites/> }/>
+				<Route path = '/favorites' element = { user ? <Favorites/> : <Navigate to = '/' replace = { true }/> }/>
 				<Route path = '/admin/*' element = { user ? <Layout/> : (
 					<div className = 'min-h-screen flex justify-center items-center'>
 						<SignIn fallbackRedirectUrl = '/admin'/>
