@@ -29,6 +29,11 @@ export const stripeWebhooks = async (req, res) => {
                     paymentLink: ''
                 });
 
+                await inngest.send({
+                    name: 'app/show.booked',
+                    data: { bookingId }
+                });
+
                 break;
             }
             default: 
