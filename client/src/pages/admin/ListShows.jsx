@@ -1,37 +1,38 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 
-import { dummyShowsData } from '../../assets/assets';
+import { useAppContext } from '../../contexts/AppContext';
+
 import dateFormat from '../../libs/dateFormat.mjs';
 
 const ListShows = () => {
     const [shows, setShows] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { axios, user, getToken } = useAppContext();
+
     useEffect(() => {
         const getAllShows = async () => {
             try {
-                setShows([{
-                    movie: dummyShowsData[0],
-                    showDateTime: '2025-06-30T02:30:00.000Z',
-                    showPrice: 59,
-                    occupiedSeats: {
-                        A1: 'user_1',
-                        B1: 'user_2',
-                        C1: 'user_3',
-                    }
-                }]);
+                const { data } = await axios.get('/api/admin/shows', {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+
+                if(data.success) setShows(data.shows);
+                else toast.error(data.message);
             } catch(err) {
                 console.log(err);
+                toast.error(err.message);
             }
         }
 
         setIsLoading(true);
-        getAllShows();
+        if(user) getAllShows();
         setIsLoading(false);
-    }, []);
+    }, [user]);
 
     return !isLoading ? (
         <>

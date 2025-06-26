@@ -3,22 +3,36 @@ import { useEffect, useState } from "react";
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 
-import { dummyBookingData } from '../../assets/assets';
+import { useAppContext } from '../../contexts/AppContext';
+
 import dateFormat from '../../libs/dateFormat.mjs';
+import toast from "react-hot-toast";
 
 const ListBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { axios, user, getToken } = useAppContext();
+
     useEffect(() => {
-        const getAllBookings = () => {
-            setBookings(dummyBookingData);
+        const getAllBookings = async () => {
+            try {
+                const { data } = await axios.get('/api/admin/bookings', {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+
+                if(data.success) setBookings(data.bookings);
+                else toast.error(data.message);
+            } catch(error) {
+                console.log(error);
+                toast.error(error.message);
+            }
         }
 
         setIsLoading(true);
-        getAllBookings();
+        if(user) getAllBookings();
         setIsLoading(false);
-    }, []);
+    }, [user]);
 
     return !isLoading ? (
         <>

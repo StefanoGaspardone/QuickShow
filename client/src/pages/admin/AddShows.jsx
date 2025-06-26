@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 import Loading from '../../components/Loading';
 import Title from '../../components/admin/Title';
 
-import { dummyShowsData } from '../../assets/assets';
+import { useAppContext } from '../../contexts/AppContext';
+
 import kConverter from '../../libs/kConverter.mjs';
 
 const AddShows = () => {
@@ -14,6 +15,9 @@ const AddShows = () => {
     const [dateTimeSelection, setDateTimeSelection] = useState({});
     const [dateTimeInput, setDateTimeInput] = useState('');
     const [showPrice, setShowPrice] = useState('');
+    const [addingShow, setAddingShow] = useState(false);
+
+    const { axios, getToken, user, image_base_url } = useAppContext();
 
     const handleDateTimeAdd = () => {
         if(!dateTimeInput) return toast('Please select a date');
@@ -43,13 +47,54 @@ const AddShows = () => {
         });
     }
 
+    const handleSubmit = async () => {
+        try {
+            setAddingShow(true);
+
+            if(!selectedMovie || Object.keys(dateTimeSelection).length === 0 || !showPrice) return toast('Missing required fields');
+
+            const showsInput = Object.entries(dateTimeSelection).map(([date, time]) => ({ date, time }));
+            const payload = {
+                movieId: selectedMovie,
+                showsInput,
+                showPrice: Number(showPrice),
+            }
+
+            const { data } = await axios.post('/api/shows', payload, {
+                headers: { Authorization: `Bearer ${await getToken()}` }
+            });
+            if(data.success) {
+                toast.success('Show added successfully');
+                setSelectedMovie(null);
+                setDateTimeSelection({});
+                setShowPrice('');
+            } else {
+                toast.error(data.message);
+            }
+        } catch(error) {
+            console.log(error);
+            toast.error(error.message);
+        } finally {
+            setAddingShow(false);
+        }
+    }
+
     useEffect(() => {
         const getNowPlayingMovies = async () => {
-            setNowPlayingMovies(dummyShowsData);
+            try {
+                const { data } = await axios.get('/api/shows/now-playing', {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+
+                if(data.success) setNowPlayingMovies(data.movies);
+                else toast.error(data.message);
+            } catch(error) {
+                console.log(error);
+            }
         } 
 
-        getNowPlayingMovies();
-    }, []);
+        if(user) getNowPlayingMovies();
+    }, [user]);
 
     return nowPlayingMovies.length > 0 ? (
         <>
@@ -58,9 +103,9 @@ const AddShows = () => {
             <div className = 'overflow-x-auto pb-4'>
                 <div className = 'group flex flex-wrap gap-4 mt-4 w-max'>
                     {nowPlayingMovies.map((movie, index) => (
-                        <div key = { index } onClick = { () => setSelectedMovie(movie._id) } className = { `relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300 ` }>
+                        <div key = { index } onClick = { () => setSelectedMovie(movie.id) } className = { `relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 hover:-translate-y-1 transition duration-300 ` }>
                             <div className = 'relative rounded-lg overflow-hidden'>
-                                <img className = 'w-full object-cover brightness-90' src = { movie.poster_path } alt = ''/>
+                                <img className = 'w-full object-cover brightness-90' src = { `${image_base_url}/${movie.poster_path}` } alt = ''/>
                                 <div className = 'text-sm flex items-center justify-between p-2 bg-black/70 w-full absolute bottom-0 left-0'>
                                     <p className = 'flex items-center gap-1 text-gray-400'>
                                         <StarIcon className = 'w-4 h-4 text-primary fill-primary'/>
@@ -69,7 +114,7 @@ const AddShows = () => {
                                     <p className = 'text-gray-300'>{kConverter(movie.vote_count)} Votes</p>
                                 </div>
                             </div>
-                            {selectedMovie === movie._id && (
+                            {selectedMovie === movie.id && (
                                 <div className = 'absolute top-2 right-2 flex items-center justify-center bg-primary h-6 w-6 rounded'>
                                     <CheckIcon className = 'w-4 h-4 text-white' strokeWidth = { 2.5 }/>
                                 </div>
@@ -114,7 +159,7 @@ const AddShows = () => {
                     </ul>
                 </div>
             )}
-            <button className = 'bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer'>
+            <button onClick = { handleSubmit } disabled = { addingShow } className = 'bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer'>
                 Add Show
             </button>
         </>

@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router';
 import { Toaster } from 'react-hot-toast';
+import { SignIn } from '@clerk/clerk-react';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -16,8 +17,11 @@ import AddShows from './pages/admin/AddShows';
 import ListShows from './pages/admin/ListShows';
 import ListBookings from './pages/admin/ListBookings';
 
+import { useAppContext } from './contexts/AppContext';
+
 const App = () => {
 	const isAdminRoute = useLocation().pathname.startsWith('/admin');
+	const { user } = useAppContext();
 
 	return (
 		<>
@@ -30,7 +34,11 @@ const App = () => {
 				<Route path = '/movies/:id/:date' element = { <SeatLayout/> }/>
 				<Route path = '/my-bookings' element = { <MyBookings/> }/>
 				<Route path = '/favorites' element = { <Favorites/> }/>
-				<Route path = '/admin/*' element = { <Layout/> }>
+				<Route path = '/admin/*' element = { user ? <Layout/> : (
+					<div className = 'min-h-screen flex justify-center items-center'>
+						<SignIn fallbackRedirectUrl = '/admin'/>
+					</div>
+				) }>
 					<Route index element = { <Dashboard/> }/>
 					<Route path = 'shows/new' element = { <AddShows/> }/>
 					<Route path = 'shows' element = { <ListShows/> }/>

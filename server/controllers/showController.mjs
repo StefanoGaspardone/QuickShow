@@ -23,7 +23,7 @@ export const addShow = async (req, res) => {
     try {
         const { movieId, showsInput, showPrice } = req.body;
 
-        let movie = await Movie.findOne(movieId);
+        let movie = await Movie.findOne({ _id: movieId });
         if(!movie) {
             const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
                 axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {
