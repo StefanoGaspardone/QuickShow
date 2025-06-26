@@ -8,6 +8,7 @@ import { useAppContext } from '../contexts/AppContext';
 
 import timeFormat from '../libs/timeFormat.mjs';
 import dateFormat from "../libs/dateFormat.mjs";
+import { Link } from "react-router";
 
 const MyBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -57,7 +58,7 @@ const MyBookings = () => {
                             <div className = 'flex flex-col md:items-end md:text-right justify-between p-4'>
                                 <div className = 'flex items-center gap-4'>
                                     <p className = 'text-2xl font-semibold mb-3'>&euro; {booking.amount}</p>
-                                    {!booking.isPaid && <button className = 'bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium active:scale-95 cursor-pointer transition'>Pay now</button>}
+                                    {!booking.isPaid && <Link to = {booking.paymentLink} className = 'bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium active:scale-95 cursor-pointer transition'>Pay now</Link>}
                                 </div>
                                 <div className = 'text-sm'>
                                     <p><span className = 'text-gray-400'>Total tickets:</span> {booking.bookedSeats.length}</p>

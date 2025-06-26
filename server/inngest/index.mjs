@@ -1,6 +1,8 @@
 import { Inngest } from "inngest";
 
 import User from '../models/User.mjs';
+import Booking from '../models/Booking.mjs';
+import Show from '../models/Show.mjs';
 
 export const inngest = new Inngest({ id: 'movie-ticket-booking' });
 
@@ -45,8 +47,34 @@ const syncUserUpdation = inngest.createFunction(
     }
 );
 
+const releaseSeatsAndDeleteBookings = inngest.createFunction(
+    { id: 'release-seat-delete-bookings' },
+    { event: 'app/checkpayment' },
+    async ({ event, step }) => {
+        const tenMinLater = new Date(Date.now() + 10 * 60 * 1000);
+        await step.sleepUntil('wait-for-10-minutes', tenMinLater);
+
+        await step.run('check-payment-status', async () => {
+            const bookingId = event.data.bookingId;
+            const booking = await Booking.findById(bookingId);
+
+            if(!booking.isPaid) {
+                const show = await Show.findById(booking.show);
+                booking.bookedSeats.forEach(seat => {
+                    delete show.occupiedSeats[seat];
+                });
+
+                show.markModified('occupiedSeats');
+                await show.save();
+                await Booking.findByIdAndDelete(booking._id);
+            }
+        });
+    }
+);
+
 export const functions = [
     syncUserCreation,
     syncUserDeletion,
     syncUserUpdation,
+    releaseSeatsAndDeleteBookings,
 ];
