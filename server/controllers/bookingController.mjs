@@ -68,7 +68,7 @@ export const createBooking = async (req, res) => {
         });
 
         booking.paymentLink = session.url;
-        console.log('Stripe session: ' + session);
+        console.log('Stripe session: ' + session.metadata);
         await booking.save();
 
         await inngest.send({
