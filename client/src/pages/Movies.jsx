@@ -1,18 +1,39 @@
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+
 import MovieCard from '../components/MovieCard';
 import BlurCircle from '../components/BlurCircle';
 
 import { useAppContext } from '../contexts/AppContext';
 
 const Movies = () => {
-    const { shows } = useAppContext();
+    const [movies, setMovies] = useState([]);
+    const { axios, getToken } = useAppContext();
+    
+    useEffect(() => {
+        const getMovies = async () => {
+            try {
+                const { data } = await axios.get('/api/movies', {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
 
-    return shows.length > 0 ? (
+                if(data.success) setMovies(data.movies);
+                else toast.error(data.message);
+            } catch(error) {
+                console.log(error);
+                toast.error(error.message);
+            }
+        }
+
+        getMovies();
+    }, []);
+
+    return movies.length > 0 ? (
         <div className = 'relative my-40 mb-60 px-6 md:px-16 lg:px-40 xl:px-44 overflow-hidden min-h-[80vh]'>
             <BlurCircle top = '150px' left = '0px'/>
             <BlurCircle bottom = '50px' right = '50px'/>
-            <h1 className = 'text-lg font-medium my-4'>Now showing</h1>
             <div className = 'flex flex-wrap max-sm:justify-center gap-8'>
-                {shows.map((movie, index) => (
+                {movies.map((movie, index) => (
                     <MovieCard key = { index } movie = { movie }/>
                 ))}
             </div>

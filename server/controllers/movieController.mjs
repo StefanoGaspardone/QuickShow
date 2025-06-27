@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 import Movie from '../models/Movie.mjs';
+import Show from '../models/Show.mjs';
+import Progress from '../models/Progress.mjs';
 
 export const getMovies = async (req, res) => {
     try {
@@ -79,6 +81,59 @@ export const getMovie = async (req, res) => {
         if(!movie) return res.status(404).json({ success: false, message: `No movie with id ${movieId}` });
 
         res.status(200).json({ success: true, movie });
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export const getShows = async (req, res) => {
+    try {
+        const { movieId } = req.params;
+
+        const shows = await Show.find({ movie: movieId, showDateTime: { $gte: new Date() } });
+
+        const dateTime = {};
+
+        shows.forEach(show => {
+            const date = show.showDateTime.toISOString().split('T')[0];
+            if(!dateTime[date]) {
+                dateTime[date] = [];
+            }
+            dateTime[date].push({
+                time: show.showDateTime,
+                showId: show._id,
+            });
+        });
+
+        res.json({ success: true, dateTime });
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export const getProgress = async (req, res) => {
+    try {
+        const { movieId } = req.params;
+        const { userId } = req.auth();
+
+        const prog = await Progress.findOne({ userId, movieId });
+        res.status(200).json({ success: true, progress: prog?.progress || 0 });
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export const updateProgress = async (req, res) => {
+    try {
+        const { movieId } = req.params;
+        const { userId } = req.auth();
+        const { progress } = req.body;
+
+        await Progress.findOneAndUpdate({ userId, movieId }, { progress }, { upsert: true, new: true });
+        res.status(204).json({ success: true, message: 'Progress updated' });
     } catch(error) {
         console.log(error);
         res.status(500).json({ success: false, message: error.message });
