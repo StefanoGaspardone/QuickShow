@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { Heart, PlayCircleIcon, RotateCcwIcon, StarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
-import ReactPlayer from 'react-player';
+import videojs from 'video.js';
 
 import BlurCircle from '../components/BlurCircle';
 import DateSelect from '../components/DateSelect';
@@ -13,6 +13,7 @@ import TrailersSection from '../components/TrailersSection';
 import { useAppContext } from '../contexts/AppContext';
 
 import timeFormat from '../libs/timeFormat.mjs';
+import VideoPlayer from '../components/VideoPlayer';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -20,7 +21,6 @@ const MovieDetails = () => {
     const [shows, setShows] = useState([]);
     const [showPlayer, setShowPlayer] = useState(false);
     const [startTime, setStartTime] = useState(0);
-    const [playing, setPlaying] = useState(false);
 
     const playerRef = useRef(null);
     const { axios, user, getToken, fetchFavoritesMovies, favoriteMovies, image_base_url } = useAppContext();
@@ -61,12 +61,11 @@ const MovieDetails = () => {
         } else setStartTime(0);
 
         setShowPlayer(true);
-        setPlaying(true);
     }
 
     const handleExitPlayer = async () => {
         setShowPlayer(false);
-        setPlaying(false);
+        setHasSeeked(false);
 
         try {
             await axios.post(`/api/movies/${id}/progress`, {
@@ -107,6 +106,36 @@ const MovieDetails = () => {
         getShows();
     }, []);
 
+    const videoJsOptions = {
+        autoplay: true,
+        controls: true,
+        responsive: true,
+        fluid: true,
+        sources: [{
+            src: 'http://localhost:3000/public/videos/video1.mp4',
+            type: 'video/mp4'
+        }]
+    };
+
+    const [hasSeeked, setHasSeeked] = useState(false);
+    const handlePlayerReady = (player) => {
+        playerRef.current = player;
+        if (!hasSeeked && startTime > 0) {
+            player.currentTime(startTime);
+            setHasSeeked(true);
+        }
+        player.on('waiting', () => {
+            videojs.log('player is waiting');
+        });
+        player.on('dispose', () => {
+            videojs.log('player will dispose');
+        });
+        player.on('timeupdate', () => {
+            const current = player.currentTime();
+            setStartTime(current);
+        });
+    };
+
     return movie ? (
         <div className = 'px-6 md:px-16 lg:px-40 pt-30 md:pt-50'>
             <div className = 'flex flex-col md:flex-row gap-8 max-w-6xl mx-auto'>
@@ -114,7 +143,7 @@ const MovieDetails = () => {
                 <div className = 'relative flex flex-col gap-3'>
                     <BlurCircle top = '-100px' left = '-100px'/>
                     <p className = 'text-primary'>ENGLISH</p>
-                    <h1 className = 'text-4xl font-semibold max-w-96 text-balance'>{movie.title}</h1>
+                    <h1 className = 'text-4xl font-semibold text-balance'>{movie.title}</h1>
                     <div className = 'flex items-center gap-2 text-gray-300'>
                         <StarIcon className = 'w-5 h-5 text-primary fill-primary'/>
                         {movie.vote_average.toFixed(1)} User Rating
@@ -159,11 +188,7 @@ const MovieDetails = () => {
             {showPlayer && (
                 <div className = 'fixed top-0 left-0 w-full h-full bg-black z-50'>
                     <button onClick = { handleExitPlayer } className = 'absolute top-4 left-4 z-50 bg-white text-black px-3 py-1 rounded cursor-pointer'>✖</button>
-                    <ReactPlayer ref = { playerRef } url = { movie.trailers[0].url } playing = { playing } controls = { false } width = '100%' height = '100%' onReady = { () => {
-                        if (startTime > 0 && playerRef.current) {
-                            playerRef.current.seekTo(startTime, 'seconds');
-                        }
-                    } } onProgress = { ({ playedSeconds }) => setStartTime(playedSeconds) }/>
+                    <VideoPlayer options = {videoJsOptions } onReady = { handlePlayerReady }/>
                 </div>
             )}
         </div>
