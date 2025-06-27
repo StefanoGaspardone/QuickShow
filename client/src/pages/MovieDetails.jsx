@@ -102,8 +102,21 @@ const MovieDetails = () => {
             }
         }
 
+        const getProgress = async () => {
+            try {
+                const { data } = await axios.get(`/api/movies/${id}/progress`, {
+                    headers: { Authorization: `Bearer ${await getToken()}` }
+                });
+                setStartTime(data.progress || 0);
+            } catch(error) {
+                console.log(error);
+                setStartTime(0);
+            }
+        }
+
         getMovie();
         getShows();
+        getProgress();
     }, []);
 
     const videoJsOptions = {
@@ -136,10 +149,17 @@ const MovieDetails = () => {
         });
     };
 
+    const progressPercent = movie && movie.runtime ? Math.min(100, Math.round((startTime / (movie.runtime * 60)) * 100)) : 0;
+
     return movie ? (
         <div className = 'px-6 md:px-16 lg:px-40 pt-30 md:pt-50'>
             <div className = 'flex flex-col md:flex-row gap-8 max-w-6xl mx-auto'>
-                <img className = 'max-md:mx-auto rounded-xl h-104 max-w-70 object-cover' src = { `${image_base_url}/${movie.poster_path}` } alt = ''/>
+                <div className='relative rounded-t-lg overflow-hidden'>
+                    <img className = 'max-md:mx-auto h-104 max-w-70 object-cover' src = { `${image_base_url}/${movie.poster_path}` } alt = ''/>
+                    <div className = 'absolute bottom-0 left-0 w-full h-1.5 bg-gray-800'>
+                        <div className = 'h-full bg-primary transition-all duration-300' style = {{ width: `${progressPercent}%` }}/>
+                    </div>
+                </div>
                 <div className = 'relative flex flex-col gap-3'>
                     <BlurCircle top = '-100px' left = '-100px'/>
                     <p className = 'text-primary'>ENGLISH</p>
@@ -186,9 +206,13 @@ const MovieDetails = () => {
             <DateSelect dateTime = { shows.dateTime } id = { id }/>
             <TrailersSection trailers = { movie.trailers }/>
             {showPlayer && (
-                <div className = 'fixed top-0 left-0 w-full h-full bg-black z-50'>
-                    <button onClick = { handleExitPlayer } className = 'absolute top-4 left-4 z-50 bg-white text-black px-3 py-1 rounded cursor-pointer'>✖</button>
-                    <VideoPlayer options = {videoJsOptions } onReady = { handlePlayerReady }/>
+                <div className = 'fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center'>
+                    <button onClick = { handleExitPlayer } className = 'absolute top-4 left-4 z-50 bg-white text-black px-2.5 py-1 rounded-full cursor-pointer'>
+                        ✖
+                    </button>
+                    <div className = 'w-full max-w-5xl max-h-[90vh] flex items-center justify-center'>
+                        <VideoPlayer options = { videoJsOptions } onReady = { handlePlayerReady }/>
+                    </div>
                 </div>
             )}
         </div>

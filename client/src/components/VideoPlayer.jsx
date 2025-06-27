@@ -37,7 +37,7 @@ const VideoPlayer = ({ options, onReady }) => {
 	}, [playerRef]);
 
     return (
-		<div data-vjs-player>
+		<div data-vjs-player className = 'h-full w-full'>
 			<div ref = {videoRef }/>
 		</div>
     );

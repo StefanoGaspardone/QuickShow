@@ -20,7 +20,7 @@ const DateSelect = ({ dateTime, id }) => {
     return (
         <div id = 'dateSelect' className = 'pt-20'>
             <p className = 'text-lg font-semibold mb-3'>Shows</p>
-            {dateTime.length > 0 ? (
+            {dateTime && dateTime.length > 0 ? (
                 <div className = 'flex flex-col md:flex-row items-center justify-between gap-10 relative p-8 bg-primary/10 border border-primary/20 rounded-lg'>
                     <BlurCircle top = '-100px' left = '-100px'/>
                     <BlurCircle top = '100px' right = '0px'/>
