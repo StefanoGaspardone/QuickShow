@@ -14,6 +14,7 @@ export const AppProvider = ({ children }) => {
     const [favoriteMovies, setFavoriteMovies] = useState([]);
 
     const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
+    const tmdb_key = import.meta.env.VITE_TMDB_API_KEY;
 
     const { user } = useUser();
     const { getToken } = useAuth();
@@ -26,6 +27,8 @@ export const AppProvider = ({ children }) => {
 
             if(data.success) setShows(data.shows);
             else toast.error(data.message);
+
+            console.log('Shows: ' + data.shows);
         } catch(error) {
             console.log(error);
         }
@@ -72,7 +75,7 @@ export const AppProvider = ({ children }) => {
     }, [user]);
 
     return (
-        <AppContext.Provider value = {{ axios, fetchIsAdmin, user, getToken, navigate, isAdmin, shows, favoriteMovies, fetchFavoritesMovies, image_base_url }}>
+        <AppContext.Provider value = {{ axios, fetchIsAdmin, user, getToken, navigate, isAdmin, shows, favoriteMovies, fetchFavoritesMovies, image_base_url, tmdb_key }}>
             { children }
         </AppContext.Provider>
     );

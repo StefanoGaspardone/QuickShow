@@ -9,6 +9,7 @@ import showRouter from './routes/showRoutes.mjs';
 import bookingRouter from './routes/bookingRoutes.mjs';
 import adminRouter from './routes/adminRoutes.mjs';
 import userRouter from './routes/userRoutes.mjs';
+import movieRouter from './routes/movieRouter.mjs';
 
 import { stripeWebhooks } from './controllers/stripeWebhooks.mjs';
 
@@ -35,6 +36,9 @@ app.use('/api/shows', showRouter);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/user', userRouter);
+
+// NEW APIs
+app.use('/api/movies', movieRouter);
 
 /* RUN THE SERVER */
 app.listen(port, () => console.log(`Server listening at http://localhost:${port}`));

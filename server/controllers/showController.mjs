@@ -25,7 +25,7 @@ export const addShow = async (req, res) => {
 
         let movie = await Movie.findOne({ _id: movieId });
         if(!movie) {
-            const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
+            const [movieDetailsResponse, movieCreditsResponse, movieVideosResponse] = await Promise.all([
                 axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {
                     headers: {
                         Authorization: `Bearer ${process.env.TMDB_API_KEY}`
@@ -35,12 +35,20 @@ export const addShow = async (req, res) => {
                     headers: {
                         Authorization: `Bearer ${process.env.TMDB_API_KEY}`
                     }
+                }),
+                axios.get(`https://api.themoviedb.org/3/movie/${movieId}/videos`, {
+                    headers: {
+                        Authorization: `Bearer ${process.env.TMDB_API_KEY}`
+                    }
                 })
             ]);
 
             const movieApiData = movieDetailsResponse.data;
             const movieCreditsData = movieCreditsResponse.data;
-            console.log(movieCreditsData);
+            const movieVideosData = movieVideosResponse.data;
+
+            const trailers = movieVideosData.results.filter(res => res.type === 'Trailer' && res.site === 'YouTube')
+                                                    .map(res => ({ url: `https://www.youtube.com/watch?v=${res.key}`, thumbnail: `https://img.youtube.com/vi/${res.key}/hqdefault.jpg` }));
 
             const movieDetails = {
                 _id: movieId,
@@ -55,6 +63,8 @@ export const addShow = async (req, res) => {
                 vote_average: movieApiData.vote_average,
                 runtime: movieApiData.runtime,
                 casts: movieCreditsData.cast,
+                trailers,
+                video: trailers.length > 0 ? trailers[0].url : 'ciao',
             };
 
             movie = await Movie.create(movieDetails);

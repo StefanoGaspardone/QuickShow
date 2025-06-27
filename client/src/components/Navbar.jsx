@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
-import { MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react';
+import { MenuIcon, SearchIcon, ShieldUser, TicketPlus, XIcon } from 'lucide-react';
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react';
+
+import { useAppContext } from '../contexts/AppContext';
 
 import { assets } from '../assets/assets';
 
@@ -11,6 +13,7 @@ const Navbar = () => {
     const { openSignIn } = useClerk();
 
     const navigate = useNavigate();
+    const { isAdmin } = useAppContext();
     
     return (
         <div className = 'fixed top-0 left-0 z-50 w-full flex items-center justify-between px-6 md:px-16 lg:px-36 py-5'>
@@ -32,6 +35,11 @@ const Navbar = () => {
                         <UserButton.MenuItems>
                             <UserButton.Action onClick = { () => navigate('/my-bookings') } label = 'My bookings' labelIcon = { <TicketPlus width = { 15 }/> }/>
                         </UserButton.MenuItems>
+                        {isAdmin && (
+                            <UserButton.MenuItems>
+                                <UserButton.Action onClick = { () => navigate('/admin') } label = 'Admin Dashboard' labelIcon = { <ShieldUser width = { 15 }/> }/>
+                            </UserButton.MenuItems>
+                        )}
                     </UserButton>
                 )}
             </div>

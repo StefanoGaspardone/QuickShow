@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router';
 import { Toaster } from 'react-hot-toast';
 import { SignIn } from '@clerk/clerk-react';
+import { useEffect, useState } from 'react';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,12 +18,20 @@ import Dashboard from './pages/admin/Dashboard';
 import AddShows from './pages/admin/AddShows';
 import ListShows from './pages/admin/ListShows';
 import ListBookings from './pages/admin/ListBookings';
+import AddMovie from './pages/admin/AddMovie';
+import ListMovies from './pages/admin/ListMovies';
 
 import { useAppContext } from './contexts/AppContext';
 
 const App = () => {
-	const isAdminRoute = useLocation().pathname.startsWith('/admin');
+	const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+	const location = useLocation();
 	const { user } = useAppContext();
+
+	useEffect(() => {
+		setIsAdminRoute(location.pathname.startsWith('/admin'));
+	}, [location.pathname]);
 
 	return (
 		<>
@@ -42,6 +51,8 @@ const App = () => {
 					</div>
 				) }>
 					<Route index element = { <Dashboard/> }/>
+					<Route path = 'movies/new' element = { <AddMovie/> }/>
+					<Route path = 'movies' element = { <ListMovies/> }/>
 					<Route path = 'shows/new' element = { <AddShows/> }/>
 					<Route path = 'shows' element = { <ListShows/> }/>
 					<Route path = 'bookings' element = { <ListBookings/> }/>

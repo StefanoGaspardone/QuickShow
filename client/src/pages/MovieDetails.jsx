@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Heart, PlayCircleIcon, StarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
 
 import BlurCircle from '../components/BlurCircle';
 import DateSelect from '../components/DateSelect';
 import MovieCard from '../components/MovieCard';
 import Loading from '../components/Loading';
+import TrailersSection from '../components/TrailersSection';
 
 import { useAppContext } from '../contexts/AppContext';
 
 import timeFormat from '../libs/timeFormat.mjs';
-import toast from 'react-hot-toast';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -70,10 +71,10 @@ const MovieDetails = () => {
                     <p className = 'text-gray-400 mt-2 text-sm leading-tight max-w-xl'>{show.movie.overview}</p>
                     <p>{timeFormat(show.movie.runtime)} • {show.movie.genres.map(genre => genre.name).join(', ')} • {dayjs(show.movie.release_date).format('YYYY')}</p>
                     <div className = 'flex items-center flex-wrap gap-4 mt-4'>
-                        <button className = 'flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
+                        <a href = '#trailers' className = 'flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
                             <PlayCircleIcon className = 'w-5 h-5'/>
                             Watch trailer
-                        </button>
+                        </a>
                         <a href = '#dateSelect' className = 'px-10 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-md font-medium cursor-pointer active:scale-95'>Buy ticket</a>
                         <button onClick = { handleFavorite } className = 'bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95'>
                             <Heart className = { `w-5 h-5 ${favoriteMovies.find(movie => movie._id === id) ? 'fill-primary text-primary' : ''}` }/>
@@ -94,6 +95,7 @@ const MovieDetails = () => {
                 </div>
             </div>
             <DateSelect dateTime = { show.dateTime } id = { id }/>
+            <TrailersSection trailers = { show.movie.trailers }/>
             <p className = 'text-lg font-medium mt-20 mb-8'>You may also like</p>
             <div className = 'flex flex-wrap max-sm:justify-center gap-8'>
                 {shows.slice(0, 4).map((movie, index) => (
