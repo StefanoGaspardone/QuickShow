@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router';
-import { LayoutDashboardIcon, ListCollapseIcon, ListIcon, PlusSquareIcon, ClapperboardIcon, LogOutIcon  } from 'lucide-react';
+import { LayoutDashboardIcon, ListCollapseIcon, ListIcon, PlusSquareIcon, ClapperboardIcon, LogOutIcon, TvIcon  } from 'lucide-react';
 
 import { assets } from '../../assets/assets';
 
@@ -23,6 +23,16 @@ const adminNavLinks = [
     {
         name: 'List Movies',
         path: '/admin/movies',
+        icon: ListIcon, 
+    },
+    {
+        name: 'Add Tv Series',
+        path: '/admin/series/new',
+        icon: TvIcon,
+    },
+    {
+        name: 'List Tv Series',
+        path: '/admin/series',
         icon: ListIcon, 
     },
     {

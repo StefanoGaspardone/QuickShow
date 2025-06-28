@@ -9,7 +9,8 @@ import showRouter from './routes/showRoutes.mjs';
 import bookingRouter from './routes/bookingRoutes.mjs';
 import adminRouter from './routes/adminRoutes.mjs';
 import userRouter from './routes/userRoutes.mjs';
-import movieRouter from './routes/movieRouter.mjs';
+import movieRouter from './routes/movieRoutes.mjs';
+import seriesRouter from './routes/seriesRoutes.mjs';
 
 import { stripeWebhooks } from './controllers/stripeWebhooks.mjs';
 
@@ -18,6 +19,7 @@ import { inngest, functions } from './inngest/index.mjs';
 
 const app = express();
 const port = 3000;
+const host = '0.0.0.0';
 
 await connectDB();
 
@@ -40,6 +42,7 @@ app.use('/api/user', userRouter);
 
 // NEW APIs
 app.use('/api/movies', movieRouter);
+app.use('/api/series', seriesRouter);
 
 /* RUN THE SERVER */
-app.listen(port, () => console.log(`Server listening at http://localhost:${port}`));
+app.listen(port, host, () => console.log(`Server listening at http://localhost:${port}`));

@@ -20,6 +20,8 @@ import ListShows from './pages/admin/ListShows';
 import ListBookings from './pages/admin/ListBookings';
 import AddMovie from './pages/admin/AddMovie';
 import ListMovies from './pages/admin/ListMovies';
+import AddTvSeries from './pages/admin/AddTvSeries';
+import ListTvSeries from './pages/admin/ListTvSeries';
 
 import { useAppContext } from './contexts/AppContext';
 
@@ -53,6 +55,8 @@ const App = () => {
 					<Route index element = { <Dashboard/> }/>
 					<Route path = 'movies/new' element = { <AddMovie/> }/>
 					<Route path = 'movies' element = { <ListMovies/> }/>
+					<Route path = 'series/new' element = { <AddTvSeries/> }/>
+					<Route path = 'series' element = { <ListTvSeries/> }/>
 					<Route path = 'shows/new' element = { <AddShows/> }/>
 					<Route path = 'shows' element = { <ListShows/> }/>
 					<Route path = 'bookings' element = { <ListBookings/> }/>

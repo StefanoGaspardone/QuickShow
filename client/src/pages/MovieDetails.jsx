@@ -192,7 +192,7 @@ const MovieDetails = () => {
                 </div>
             </div>
             <p className = 'text-lg font-medium mt-20'>Cast</p>
-            <div className = 'overflow-x-auto no-scrollbar mt-8 pb-4'>
+            <div className = 'overflow-x-auto small-scrollbar mt-8 pb-4'>
                 <div className = 'flex items-center gap-4 w-max px-4'>
                     {movie.casts.map((actor, index) => (
                         <div key = { index } className = 'flex flex-col items-center text-center'>

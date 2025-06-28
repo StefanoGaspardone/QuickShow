@@ -114,7 +114,7 @@ const AddMovie = () => {
                 )}
                 {selectedMovie && (
                     <>
-                        <h3 className = 'font-bold text-lg mb-2 mt-5'>{selectedMovie.title}</h3>
+                        <h3 className = 'font-bold text-lg mb-2 mt-5'>{selectedMovie.title.toUpperCase()}</h3>
                         <p className = 'text-sm text-gray-300'>{selectedMovie.overview}</p>
                         <div className = 'mt-4'>
                             <label htmlFor = 'video-upload' className = 'flex gap-2 items-center'>
@@ -124,7 +124,7 @@ const AddMovie = () => {
                             <input id = 'video-upload' type = 'file' accept = '' onChange = { e => setVideoFile(e.target.files[0]) } className = 'hidden'/>
                         </div>
                         <button onClick = { handleSubmit } disabled = { !selectedMovie || !videoFile || isLoading } className = { `bg-primary text-white px-8 py-2 mt-6 rounded transition-all ${!selectedMovie || !videoFile || isLoading ? 'opacity-50' : 'cursor-pointer active:scale-95 hover:bg-primary/90'}` }>
-                            Add Show
+                            Add Movie
                         </button>
                     </>
                 )}

@@ -15,8 +15,29 @@ body {
     background-color: #09090b;
 }
 
-.no-scrollbar {
-    scrollbar-width: none;
+.small-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #09090b;
+}
+
+.small-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+    background: #09090b;
+}
+
+.small-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.small-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-dull);
+}
+
+.small-scrollbar::-webkit-scrollbar-track {
+    background: #09090b;
 }
 
 ::-webkit-scrollbar {

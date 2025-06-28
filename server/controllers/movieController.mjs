@@ -3,6 +3,7 @@ import axios from 'axios';
 import Movie from '../models/Movie.mjs';
 import Show from '../models/Show.mjs';
 import Progress from '../models/Progress.mjs';
+import Booking from '../models/Booking.mjs';
 
 export const getMovies = async (req, res) => {
     try {
@@ -59,6 +60,7 @@ export const addMovie = async (req, res) => {
             original_language: movieApiData.original_language,
             tagline: movieApiData.tagline || '',
             vote_average: movieApiData.vote_average,
+            vote_count: movieApiData.vote_count,
             runtime: movieApiData.runtime,
             casts: movieCreditsData.cast,
             trailers,
@@ -134,6 +136,28 @@ export const updateProgress = async (req, res) => {
 
         await Progress.findOneAndUpdate({ userId, movieId }, { progress }, { upsert: true, new: true });
         res.status(204).json({ success: true, message: 'Progress updated' });
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export const deleteMovie = async (req, res) => {
+    try {
+        const { movieId } = req.params;
+
+        const movie = await Movie.findById(movieId);
+        if(!movie) return res.status(404).json({ success: false, message: `No movie with id ${movieId}` });
+
+        const shows = await Show.find({ movie: movieId });
+        const showIds = shows.map(show => show._id.toString());
+
+        if(showIds.length > 0) await Booking.deleteMany({ show: { $in: showIds } });
+
+        await Show.deleteMany({ movie: movieId });
+        await Movie.findByIdAndDelete(movieId);
+
+        res.status(200).json({ success: true, message: 'Movie deleted successfully' });
     } catch(error) {
         console.log(error);
         res.status(500).json({ success: false, message: error.message });
