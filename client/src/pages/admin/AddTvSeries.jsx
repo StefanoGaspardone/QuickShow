@@ -11,10 +11,9 @@ const AddTvSeries = () => {
     const [selectedSeries, setSelectedSeries] = useState(null);
     const [seasons, setSeasons] = useState([]);
     const [tvSeries, setTvSeries] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [episodeFiles, setEpisodeFiles] = useState({});
     
-    const { axios, getToken, tmdb_key } = useAppContext();
+    const { axios, getToken, tmdb_key, isLoading, setIsLoading } = useAppContext();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -54,7 +53,7 @@ const AddTvSeries = () => {
                 headers: { Authorization: `Bearer ${tmdb_key}` }
             });
             const data = await res.json();
-            setResults(data.results.filter(serie => !tvSeries.includes(serie.id)));
+            setResults(data.results.filter(serie => !tvSeries.includes(serie.id)).filter(serie => !!serie.first_air_date && !isNaN(new Date(serie.first_air_date).getFullYear())));
         } catch(error) {
             console.log(error);
             toast.error(error.message);
@@ -85,7 +84,7 @@ const AddTvSeries = () => {
     const handleEpisodeFileChange = (seasonNumber, episodeNumber, file) => {
         setEpisodeFiles(prev => ({
             ...prev,
-            [`${seasonNumber}_${episodeNumber}`]: file.name
+            [`${seasonNumber}_${episodeNumber}`]: file
         }));
     };
 
@@ -95,10 +94,15 @@ const AddTvSeries = () => {
 
             if(!selectedSeries || !episodeFiles) return toast('Missing required fields');
             
-            // TODO cloudinary upload
+            const uploadedEpisodes = {};
+            for(const key of Object.keys(episodeFiles)) {
+                const file = episodeFiles[key];
+                uploadedEpisodes[key] = await uploadCloudinary(file);
+            }
+
             const payload = {
                 seriesId: selectedSeries.id,
-                episodeFiles,
+                episodeFiles: uploadedEpisodes,
             }
 
             const { data } = await axios.post('/api/series', payload, {
@@ -122,6 +126,23 @@ const AddTvSeries = () => {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    const uploadCloudinary = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'unsigned_preset');
+
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { 
+            method: 'POST', 
+            body: formData 
+        });
+        const data = await res.json();
+
+        if(data.secure_url) return data.secure_url;
+        throw new Error(data.error?.message || 'Cloudinary upload failed');
     }
 
     const totalEpisodes = seasons.reduce((acc, season) => acc + (season.episodes ? season.episodes.length : 0), 0);

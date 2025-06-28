@@ -125,7 +125,7 @@ const MovieDetails = () => {
         responsive: true,
         fluid: true,
         sources: [{
-            src: 'http://localhost:3000/public/videos/video1.mp4',
+            src: movie.video,
             type: 'video/mp4'
         }]
     };

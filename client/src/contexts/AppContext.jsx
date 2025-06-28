@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [shows, setShows] = useState([]);
     const [favoriteMovies, setFavoriteMovies] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
     const tmdb_key = import.meta.env.VITE_TMDB_API_KEY;
@@ -75,7 +76,7 @@ export const AppProvider = ({ children }) => {
     }, [user]);
 
     return (
-        <AppContext.Provider value = {{ axios, fetchIsAdmin, user, getToken, navigate, isAdmin, shows, favoriteMovies, fetchFavoritesMovies, image_base_url, tmdb_key }}>
+        <AppContext.Provider value = {{ axios, fetchIsAdmin, user, getToken, navigate, isAdmin, shows, favoriteMovies, fetchFavoritesMovies, image_base_url, tmdb_key, isLoading, setIsLoading }}>
             { children }
         </AppContext.Provider>
     );

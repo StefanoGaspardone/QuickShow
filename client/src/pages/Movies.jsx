@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
-import MovieCard from '../components/MovieCard';
+import ItemCard from '../components/ItemCard';
 import BlurCircle from '../components/BlurCircle';
 
 import { useAppContext } from '../contexts/AppContext';

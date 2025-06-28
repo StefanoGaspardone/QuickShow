@@ -11,9 +11,8 @@ const AddMovie = () => {
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [videoFile, setVideoFile] = useState(null);
     const [movies, setMovies] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const { axios, getToken, tmdb_key } = useAppContext();
+    const { axios, getToken, tmdb_key, setIsLoading, isLoading } = useAppContext();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -48,7 +47,7 @@ const AddMovie = () => {
                 headers: { Authorization: `Bearer ${tmdb_key}` }
             });
             const data = await res.json();
-            setResults(data.results.filter(movie => !movies.includes(movie.id)));
+            setResults(data.results.filter(movie => !movies.includes(movie.id)).filter(movie => !!movie.release_date && !isNaN(new Date(movie.release_date).getFullYear())));
         } catch(error) {
             console.log(error);
             toast.error(error.message);
@@ -61,10 +60,10 @@ const AddMovie = () => {
 
             if(!selectedMovie || !videoFile) return toast('Missing required fields');
             
-            // TODO cloudinary upload
+            const videoUrl = await uploadCloudinary(videoFile);
             const payload = {
                 movieId: selectedMovie.id,
-                video: videoFile.name,
+                video: videoUrl,
             }
 
             const { data } = await axios.post('/api/movies', payload, {
@@ -87,6 +86,23 @@ const AddMovie = () => {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    const uploadCloudinary = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'unsigned_preset');
+
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { 
+            method: 'POST', 
+            body: formData 
+        });
+        const data = await res.json();
+
+        if(data.secure_url) return data.secure_url;
+        throw new Error(data.error?.message || 'Cloudinary upload failed');
     }
 
     return (
