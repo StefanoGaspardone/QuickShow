@@ -22,6 +22,9 @@ import AddMovie from './pages/admin/AddMovie';
 import ListMovies from './pages/admin/ListMovies';
 import AddTvSeries from './pages/admin/AddTvSeries';
 import ListTvSeries from './pages/admin/ListTvSeries';
+import Serie from './pages/Serie';
+import SerieDetails from './pages/SerieDetails';
+import NotFound from './pages/NotFound';
 
 import { useAppContext } from './contexts/AppContext';
 
@@ -33,6 +36,7 @@ const App = () => {
 
 	useEffect(() => {
 		setIsAdminRoute(location.pathname.startsWith('/admin'));
+		scrollTo(0, 0);
 	}, [location.pathname]);
 
 	return (
@@ -44,6 +48,8 @@ const App = () => {
 				<Route path = '/movies' element = { <Movies/> }/>
 				<Route path = '/movies/:id' element = { <MovieDetails/> }/>
 				<Route path = '/movies/:id/:date' element = { <SeatLayout/> }/>
+				<Route path = '/series' element = { <Serie/> }/>
+				<Route path = '/series/:id' element = { <SerieDetails/> }/>
 				<Route path = '/my-bookings' element = { <MyBookings/> }/>
 				<Route path = '/loading/:nextUrl' element = { <Loading/> }/>
 				<Route path = '/favorites' element = { user ? <Favorites/> : <Navigate to = '/' replace = { true }/> }/>
@@ -61,6 +67,7 @@ const App = () => {
 					<Route path = 'shows' element = { <ListShows/> }/>
 					<Route path = 'bookings' element = { <ListBookings/> }/>
 				</Route>
+				<Route path = '*' element = { <NotFound/> }/>
 			</Routes>
 			{!isAdminRoute && <Footer/>}
 		</>

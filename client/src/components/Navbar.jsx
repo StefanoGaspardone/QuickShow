@@ -22,9 +22,10 @@ const Navbar = () => {
             </NavLink>
             <div className = { `max-md:absolute max-md:top-0 max-md:left-0 max-md:font-medium max-md:text-lg z-50 flex flex-col md:flex-row items-center max-md:justify-center gap-8 min-md:px-8 py-3 max-md:h-screen min-md:rounded-full backdrop-blur bg-black/70 md:bg-white/10 md:border border-gray-300/20 overflow-hidden transition-[width] duration-300 ${isOpen ? 'max-md:w-full' : 'max-md:w-0'}` }>
                 <XIcon onClick = { () => setIsOpen(false) } className = 'md:hidden absolute top-6 right-6 w-6 h-6 cursor-pointer'/>
-                <NavLink onClick = { () => {scrollTo(0, 0); setIsOpen(false);} } to = '/'>Home</NavLink>
-                <NavLink onClick = { () => {scrollTo(0, 0); setIsOpen(false);} } to = '/movies'>Movies</NavLink>
-                <NavLink onClick = { () => {scrollTo(0, 0); setIsOpen(false);} } to = '/favorites'>Favorites</NavLink>
+                <NavLink onClick = { () => setIsOpen(false) } to = '/'>Home</NavLink>
+                <NavLink onClick = { () => setIsOpen(false) } to = '/movies'>Movies</NavLink>
+                <NavLink onClick = { () => setIsOpen(false) } to = '/series'>Tv Series</NavLink>
+                {user && <NavLink onClick = { () => setIsOpen(false) } to = '/favorites'>Favorites</NavLink>}
             </div>
             <div className = 'flex items-center gap-8'>
                 <SearchIcon className = 'max-md:hidden w-6 h-6 cursor-pointer'/>

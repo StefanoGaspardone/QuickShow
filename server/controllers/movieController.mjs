@@ -155,6 +155,7 @@ export const deleteMovie = async (req, res) => {
         if(showIds.length > 0) await Booking.deleteMany({ show: { $in: showIds } });
 
         await Show.deleteMany({ movie: movieId });
+        await Progress.deleteMany({ movieId });
         await Movie.findByIdAndDelete(movieId);
 
         res.status(200).json({ success: true, message: 'Movie deleted successfully' });

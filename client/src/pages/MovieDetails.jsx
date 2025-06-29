@@ -116,10 +116,10 @@ const MovieDetails = () => {
 
         getMovie();
         getShows();
-        getProgress();
+        if(user) getProgress();
     }, []);
 
-    const videoJsOptions = {
+    const videoJsOptions = movie ? {
         autoplay: true,
         controls: true,
         responsive: true,
@@ -128,7 +128,7 @@ const MovieDetails = () => {
             src: movie.video,
             type: 'video/mp4'
         }]
-    };
+    } : null;
 
     const [hasSeeked, setHasSeeked] = useState(false);
     const handlePlayerReady = (player) => {
@@ -154,11 +154,13 @@ const MovieDetails = () => {
     return movie ? (
         <div className = 'px-6 md:px-16 lg:px-40 pt-30 md:pt-50'>
             <div className = 'flex flex-col md:flex-row gap-8 max-w-6xl mx-auto'>
-                <div className='relative rounded-t-lg overflow-hidden'>
+                <div className = { `relative ${user ? 'rounded-t-lg' : 'rounded-lg'}  overflow-hidden` }>
                     <img className = 'max-md:mx-auto h-104 max-w-70 object-cover' src = { `${image_base_url}/${movie.poster_path}` } alt = ''/>
-                    <div className = 'absolute bottom-0 left-0 w-full h-1.5 bg-gray-800'>
-                        <div className = 'h-full bg-primary transition-all duration-300' style = {{ width: `${progressPercent}%` }}/>
-                    </div>
+                    {user && (
+                        <div className = 'absolute bottom-0 left-0 w-full h-1.5 bg-gray-800'>
+                            <div className = 'h-full bg-primary transition-all duration-300' style = {{ width: `${progressPercent}%` }}/>
+                        </div>
+                    )}
                 </div>
                 <div className = 'relative flex flex-col gap-3'>
                     <BlurCircle top = '-100px' left = '-100px'/>

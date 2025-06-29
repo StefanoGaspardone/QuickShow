@@ -94,6 +94,7 @@ const AddMovie = () => {
         formData.append('upload_preset', 'unsigned_preset');
 
         const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        console.log(cloudName);
 
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { 
             method: 'POST', 
@@ -109,10 +110,9 @@ const AddMovie = () => {
         <>
             <Title text1 = 'Add' text2 = 'Movie'/>
             <div className = 'mx-auto mt-4'>
-                <div className = 'flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md'>
-                    <input type = 'text' value = { query } onChange = { e => { setQuery(e.target.value); setSelectedMovie(null); } } placeholder = 'Search a movie...' className = 'outline-none w-full'/>
+                <div className = { `flex items-center gap-2 border border-gray-600 px-3 py-2 rounded-md ${isLoading && 'opacity-50'}` }>
+                    <input type = 'text' value = { query } onChange = { e => { setQuery(e.target.value); setSelectedMovie(null); } } placeholder = 'Search a movie...' className = 'outline-none w-full' disabled = { isLoading }/>
                 </div>
-                
                 {query.length > 0 && !selectedMovie && (
                     results.length > 0 ? (
                         <ul className='border rounded mt-1 bg-gray-800 text-white shadow max-h-64 overflow-y-auto'>
@@ -133,14 +133,14 @@ const AddMovie = () => {
                         <h3 className = 'font-bold text-lg mb-2 mt-5'>{selectedMovie.title.toUpperCase()}</h3>
                         <p className = 'text-sm text-gray-300'>{selectedMovie.overview}</p>
                         <div className = 'mt-4'>
-                            <label htmlFor = 'video-upload' className = 'flex gap-2 items-center'>
+                            <label htmlFor = 'video-upload' className = {`flex gap-2 items-center ${isLoading ? 'pointer-events-none opacity-60' : ''}`}>
                                 <span className = 'bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-all cursor-pointer inline-block'>Choose video file</span>
                                 {videoFile && <span>Video: {videoFile.name}</span>}
                             </label>
                             <input id = 'video-upload' type = 'file' accept = '' onChange = { e => setVideoFile(e.target.files[0]) } className = 'hidden'/>
                         </div>
                         <button onClick = { handleSubmit } disabled = { !selectedMovie || !videoFile || isLoading } className = { `bg-primary text-white px-8 py-2 mt-6 rounded transition-all ${!selectedMovie || !videoFile || isLoading ? 'opacity-50' : 'cursor-pointer active:scale-95 hover:bg-primary/90'}` }>
-                            Add Movie
+                            {isLoading ? 'Uploading...' : 'Add Movie'}
                         </button>
                     </>
                 )}

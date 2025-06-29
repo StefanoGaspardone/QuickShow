@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-import ItemCard from '../components/ItemCard';
-import BlurCircle from '../components/BlurCircle';
-import Loading from '../components/Loading';
+import Loading from "../components/Loading";
+import ItemCard from "../components/ItemCard";
+import BlurCircle from "../components/BlurCircle";
 
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from "../contexts/AppContext";
 
-const Movies = () => {
-    const [movies, setMovies] = useState([]);
+const Serie = () => {
+    const [series, setSeries] = useState([]);
     const { axios, getToken, setIsLoading, isLoading } = useAppContext();
-    
+
     useEffect(() => {
-        const getMovies = async () => {
+        const getSeries = async () => {
             try {
                 setIsLoading(true);
 
-                const { data } = await axios.get('/api/movies', {
+                const { data } = await axios.get('/api/series', {
                     headers: { Authorization: `Bearer ${await getToken()}` }
                 });
 
-                if(data.success) setMovies(data.movies);
+                if(data.success) setSeries(data.series);
                 else toast.error(data.message);
             } catch(error) {
                 console.log(error);
@@ -30,20 +30,20 @@ const Movies = () => {
             }
         }
 
-        getMovies();
+        getSeries();
     }, []);
 
     return (
         isLoading ? (
             <Loading/>
         ) : (
-            movies.length > 0 ? (
+            series.length > 0 ? (
                 <div className = 'relative mt-40 px-5 md:px-16 lg:px-40 xl:px-44 overflow-hidden min-h-[80vh]'>
                     <BlurCircle top = '150px' left = '0px'/>
                     <BlurCircle bottom = '100px' right = '50px'/>
                     <div className = 'flex flex-wrap max-sm:justify-center gap-8'>
-                        {movies.map((movie, index) => (
-                            <ItemCard key = { index } item = { movie } link = 'movies'/>
+                        {series.map((serie, index) => (
+                            <ItemCard key = { index } item = { serie } link = 'series'/>
                         ))}
                     </div>
                 </div>
@@ -51,11 +51,11 @@ const Movies = () => {
                 <div className = 'flex flex-col items-center justify-center h-screen'>
                     <BlurCircle top = '150px' left = '0px'/>
                     <BlurCircle bottom = '50px' right = '50px'/>
-                    <h1 className = 'text-3xl font-bold text-center'>No movies available</h1>
+                    <h1 className = 'text-3xl font-bold text-center'>No tv series available</h1>
                 </div>
             )
         )
     );
 }
 
-export default Movies;
+export default Serie;
