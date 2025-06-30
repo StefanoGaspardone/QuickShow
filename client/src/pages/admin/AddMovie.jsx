@@ -90,20 +90,17 @@ const AddMovie = () => {
 
     const uploadCloudinary = async (file) => {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', 'unsigned_preset');
+        formData.append('video', file);
 
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-        console.log(cloudName);
-
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { 
-            method: 'POST', 
-            body: formData 
+        const { data } = await axios.post('/api/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${await getToken()}`
+            }
         });
-        const data = await res.json();
 
-        if(data.secure_url) return data.secure_url;
-        throw new Error(data.error?.message || 'Cloudinary upload failed');
+        if(data.success && data.url) return data.url;
+        throw new Error(data.error?.message || 'Upload failed');
     }
 
     return (
