@@ -199,10 +199,10 @@ const AddTvSeries = () => {
                                             )}
                                             <span className = 'text-xs text-center mb-2 truncate max-w-[140px] font-semibold' title = { episode.name }>{episode.name}</span>
                                             <label className = 'w-full'>
-                                                <input type = 'file' name = { `s${season.season_number}_e${episode.episode_number}` } className = 'hidden' disabled = { isLoading } onChange={e => {
+                                                <input type = 'file' name = { `s${season.season_number}_e${episode.episode_number}` } className = 'hidden' disabled = { isLoading } onChange = { e => {
                                                     const file = e.target.files[0];
                                                     if(file) handleEpisodeFileChange(season.season_number, episode.episode_number, file);
-                                                }}/>
+                                                } }/>
                                                 <span className = { `block w-full text-xs text-center bg-primary hover:bg-primary-dull text-white rounded py-1 ${isLoading ? 'opacity-50' : 'cursor-pointer'} transition` }>Choose video file</span>
                                             </label>
                                             {episodeFiles[`${season.season_number}_${episode.episode_number}`] && (
