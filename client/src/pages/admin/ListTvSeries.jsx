@@ -66,7 +66,7 @@ const ListTvSeries = () => {
                 ) : (
                     <div className = 'mt-10 group flex flex-wrap gap-4'>
                         {series.map((serie, index) => (
-                            <div key = { index } className = { `group/item relative max-w-40 cursor-pointer group-hover:not-hover:opacity-40 group-hover/item:opacity-100 hover:-translate-y-1 transition duration-300 ` } title = { serie.title }>
+                            <div key = { index } className = { `group/item relative max-w-40 group-hover:not-hover:opacity-40 group-hover/item:opacity-100 hover:-translate-y-1 transition duration-300 ` } title = { serie.title }>
                                 <button onClick = { () => handleDeleteSerie(serie._id) } className = 'absolute top-2 right-2 z-10 bg-gray-800 rounded-md p-1.5 opacity-0 group-hover/item:opacity-100 transition active:scale-95 cursor-pointer'>
                                     <TrashIcon className = 'w-5 h-5 text-white'/>
                                 </button>

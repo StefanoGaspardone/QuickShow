@@ -1,4 +1,6 @@
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 import TvSeries from "../models/TvSeries.mjs";
 
@@ -116,6 +118,21 @@ export const deleteSerie = async (req, res) => {
 
         const series = await TvSeries.findById(seriesId);
         if(!series) return res.status(404).json({ success: false, message: `No tv series with id ${seriesId}` });
+
+        if(series.seasons && Array.isArray(series.seasons)) {
+            for(const season of series.seasons) {
+                if(season.episodes && Array.isArray(season.episodes)) {
+                    for(const episode of season.episodes) {
+                        if(episode.video && episode.video.startsWith('/videos/')) {
+                            const filePath = path.join(process.cwd(), 'public', episode.video);
+                            fs.unlink(filePath, (err) => {
+                                if(err) console.log('Errore eliminazione file episodio:', err.message);
+                            });
+                        }
+                    }
+                }
+            }
+        }
 
         await TvSeries.findByIdAndDelete(seriesId);
         

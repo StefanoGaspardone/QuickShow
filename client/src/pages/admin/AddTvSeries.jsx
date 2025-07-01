@@ -12,6 +12,7 @@ const AddTvSeries = () => {
     const [seasons, setSeasons] = useState([]);
     const [tvSeries, setTvSeries] = useState([]);
     const [episodeFiles, setEpisodeFiles] = useState({});
+    const [episodeUploadProgress, setEpisodeUploadProgress] = useState({});
     
     const { axios, getToken, tmdb_key, isLoading, setIsLoading } = useAppContext();
 
@@ -97,7 +98,34 @@ const AddTvSeries = () => {
             const uploadedEpisodes = {};
             for(const key of Object.keys(episodeFiles)) {
                 const file = episodeFiles[key];
-                uploadedEpisodes[key] = await uploadCloudinary(file);
+                const formData = new FormData();
+                formData.append('video', file);
+                
+                const res = await axios.post('/api/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${await getToken()}`,
+                    },
+                    onUploadProgress: (e) => {
+                        const percent = Math.round((e.loaded * 100) / e.total);
+                        setEpisodeUploadProgress(prev => ({
+                            ...prev,
+                            [key]: percent
+                        }));
+                    }
+                });
+
+                if(!res.data.success) {
+                    toast.error(`Upload failed for episode ${key}`);
+                    setIsLoading(false);
+                    return;
+                }
+
+                uploadedEpisodes[key] = res.data.url;
+                setEpisodeUploadProgress(prev => ({
+                    ...prev,
+                    [key]: 100
+                }));
             }
 
             const payload = {
@@ -126,23 +154,6 @@ const AddTvSeries = () => {
         } finally {
             setIsLoading(false);
         }
-    }
-
-    const uploadCloudinary = async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', 'unsigned_preset');
-
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { 
-            method: 'POST', 
-            body: formData 
-        });
-        const data = await res.json();
-
-        if(data.secure_url) return data.secure_url;
-        throw new Error(data.error?.message || 'Cloudinary upload failed');
     }
 
     const totalEpisodes = seasons.reduce((acc, season) => acc + (season.episodes ? season.episodes.length : 0), 0);
@@ -188,16 +199,23 @@ const AddTvSeries = () => {
                                             )}
                                             <span className = 'text-xs text-center mb-2 truncate max-w-[140px] font-semibold' title = { episode.name }>{episode.name}</span>
                                             <label className = 'w-full'>
-                                                <input type = 'file' name = { `s${season.season_number}_e${episode.episode_number}` } className = 'hidden' onChange={e => {
+                                                <input type = 'file' name = { `s${season.season_number}_e${episode.episode_number}` } className = 'hidden' disabled = { isLoading } onChange={e => {
                                                     const file = e.target.files[0];
                                                     if(file) handleEpisodeFileChange(season.season_number, episode.episode_number, file);
                                                 }}/>
-                                                <span className = 'block w-full text-xs text-center bg-primary hover:bg-primary-dull text-white rounded py-1 cursor-pointer transition'>Choose file</span>
+                                                <span className = { `block w-full text-xs text-center bg-primary hover:bg-primary-dull text-white rounded py-1 ${isLoading ? 'opacity-50' : 'cursor-pointer'} transition` }>Choose video file</span>
                                             </label>
                                             {episodeFiles[`${season.season_number}_${episode.episode_number}`] && (
-                                                <span className = "block text-xs text-center text-gray-400 mt-1 truncate max-w-[140px]">
-                                                    {episodeFiles[`${season.season_number}_${episode.episode_number}`]}
-                                                </span>
+                                                <>
+                                                    <span className = "block text-xs text-center text-gray-400 mt-1 truncate max-w-[140px]">
+                                                        Video file: {episodeFiles[`${season.season_number}_${episode.episode_number}`].name}
+                                                    </span>
+                                                    {episodeUploadProgress[`${season.season_number}_${episode.episode_number}`] > 0 && (
+                                                        <span className = 'text-xs text-white'>
+                                                            Uploading: {episodeUploadProgress[`${season.season_number}_${episode.episode_number}`]}%
+                                                        </span>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     ))}
