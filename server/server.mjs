@@ -16,6 +16,7 @@ import uploadRouter from './routes/uploadRoutes.mjs';
 import { stripeWebhooks } from './controllers/stripeWebhooks.mjs';
 
 import connectDB from './configs/db.mjs';
+import getLocalIP from './configs/ipAddress.mjs';
 import { inngest, functions } from './inngest/index.mjs';
 
 const app = express();
@@ -25,7 +26,7 @@ const host = '0.0.0.0';
 await connectDB();
 
 app.use('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
-app.use('/public', express.static('public'));
+app.use('/videos', express.static('public/videos'));
 
 /* MIDDLEWARES */ 
 app.use(express.json());
@@ -47,4 +48,4 @@ app.use('/api/series', seriesRouter);
 app.use('/api/upload', uploadRouter);
 
 /* RUN THE SERVER */
-app.listen(port, host, () => console.log(`Server listening at http://localhost:${port}`));
+app.listen(port, host, () => console.log(`Server listening at http://${getLocalIP()}:${port}`));

@@ -1,4 +1,6 @@
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 import cloudinary from '../configs/cloudinary.mjs';
 
@@ -151,14 +153,12 @@ export const deleteMovie = async (req, res) => {
         const movie = await Movie.findById(movieId);
         if(!movie) return res.status(404).json({ success: false, message: `No movie with id ${movieId}` });
 
-        if(movie.video) {
-            try {
-                const publicId = extractPublicId(movie.video);
-                console.log(publicId);
-                if(publicId) await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
-            } catch(error) {
-                console.log(error.message);
-            }
+        if(movie.video && movie.video.startsWith('/videos/')) {
+            const filePath = path.join(process.cwd(), 'public', movie.video);
+
+            fs.unlink(filePath, (err) => {
+                if(err) console.log('Errore eliminazione file:', err.message);
+            });
         }
 
         const shows = await Show.find({ movie: movieId });
@@ -175,9 +175,4 @@ export const deleteMovie = async (req, res) => {
         console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
-}
-
-const extractPublicId = (url) => {
-    const matches = url.match(/\/upload\/(?:v\d+\/)?([^\.]+)\./);
-    return matches ? matches[1] : null;
 }

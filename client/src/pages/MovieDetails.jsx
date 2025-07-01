@@ -125,7 +125,7 @@ const MovieDetails = () => {
         responsive: true,
         fluid: true,
         sources: [{
-            src: movie.video,
+            src: `${import.meta.env.VITE_BASE_URL}${movie.video}`,
             type: 'video/mp4'
         }]
     } : null;
