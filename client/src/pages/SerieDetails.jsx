@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import toast from 'react-hot-toast';
-import { Heart, PlayCircleIcon, RotateCcwIcon, StarIcon } from 'lucide-react';
+import { PlayCircleIcon, StarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
 
 import Loading from '../components/Loading';
@@ -42,6 +42,9 @@ const SerieDetails = () => {
                     <BlurCircle top = '-100px' left = '-100px'/>
                     <p className = 'text-primary'>ENGLISH</p>
                     <h1 className = 'text-4xl font-semibold text-balance'>{serie.title}</h1>
+                    {serie.tagline && (
+                        <p className = 'italic text-gray-400 text-base'>{serie.tagline}</p>
+                    )}
                     <div className = 'flex items-center gap-2 text-gray-300'>
                         <StarIcon className = 'w-5 h-5 text-primary fill-primary'/>
                         {serie.vote_average.toFixed(1)} User Rating
@@ -53,11 +56,6 @@ const SerieDetails = () => {
                             <PlayCircleIcon className = 'w-5 h-5'/>
                             Play
                         </a>
-                        <button onClick={() => {}} className = 'p-3 text-sm bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer active:scale-95'>
-                            <RotateCcwIcon className = 'w-5 h-5'/> 
-                        </button>
-                    </div>
-                    <div className = 'flex items-center flex-wrap gap-4'>
                         <a href = '#trailers' className = 'flex items-center gap-2 px-7 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
                             <PlayCircleIcon className = 'w-5 h-5'/>
                             Watch trailer
@@ -70,7 +68,7 @@ const SerieDetails = () => {
             </div>
             {/* seasons and episodes */}
             <p className = 'text-lg font-medium mt-20 mb-2' id = 'seasons'>Seasons</p>
-            <select className = 'bg-gray-800 text-white px-3 py-2 rounded mb-3' value = { selectedSeason } onChange = { e => setSelectedSeason(Number(e.target.value)) }>
+            <select className = 'bg-gray-800 text-white px-3 py-2 rounded mb-3 cursor-pointer' value = { selectedSeason } onChange = { e => setSelectedSeason(Number(e.target.value)) }>
                 {serie.seasons.map((season, idx) => (
                     <option key = { season.id } value = { idx }>
                         Season {season.season_number}

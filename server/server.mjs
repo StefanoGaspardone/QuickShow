@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import 'dotenv/config';
 import { clerkMiddleware } from '@clerk/express';
 import { serve } from 'inngest/express';
+import timeout from 'connect-timeout';
 
 import showRouter from './routes/showRoutes.mjs';
 import bookingRouter from './routes/bookingRoutes.mjs';
@@ -33,6 +34,11 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(cors());
 app.use(clerkMiddleware());
+app.use(timeout('60m'));
+
+app.use((req, res, next) => {
+    if(!req.timedout) next();
+});
 
 /* APIs */
 app.get('/', (req, res) => res.send('Server is ready!'));

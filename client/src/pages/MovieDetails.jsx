@@ -166,6 +166,9 @@ const MovieDetails = () => {
                     <BlurCircle top = '-100px' left = '-100px'/>
                     <p className = 'text-primary'>ENGLISH</p>
                     <h1 className = 'text-4xl font-semibold text-balance'>{movie.title}</h1>
+                    {movie.tagline && (
+                        <p className = 'italic text-gray-400 text-base'>{movie.tagline}</p>
+                    )}
                     <div className = 'flex items-center gap-2 text-gray-300'>
                         <StarIcon className = 'w-5 h-5 text-primary fill-primary'/>
                         {movie.vote_average.toFixed(1)} User Rating

@@ -73,7 +73,8 @@ const AddMovie = () => {
                 onUploadProgress: (e) => {
                     const percent = Math.round((e.loaded * 100) / e.total);
                     setUploadProgress(percent);
-                }
+                },
+                timeout: 60 * 60 * 1000,
             });
 
             if(!res.data.success) return toast.error(res.data.message);
